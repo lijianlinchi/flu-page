@@ -1,0 +1,2866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当流感变得“更黏人”</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #ebf7fd;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+
+
+/* 主题概括部分 */
+.overview-section {
+    padding: 0px;
+    margin-bottom: 20px;
+}
+
+.overview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 25px;
+}
+
+/* 标题和内容区域布局 */
+.overview-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* 标题样式 */
+.overview-title {
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* 图文内容区域 - 左右结构，左文字右图片 */
+.overview-content-inner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* 图片容器 */
+.overview-image {
+    flex: 0 0 400px;
+    max-height: 500px;
+    overflow: visible;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 文字内容 */
+.overview-text-content {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* 新增的横幅图片 */
+.overview-banner {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Banner内容布局 - 上下结构 */
+.banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: -9px;
+    align-items: center;
+}
+
+/* Banner图片容器 */
+.banner-image {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 600px; /* 增加高度，确保地图完整显示 */
+    overflow: visible;
+    border-radius: 8px;
+    background-color: transparent; /* 透明背景 */
+    padding: 10px;
+    position: relative; /* 确保子元素能相对于它定位 */
+}
+
+/* 地图容器 */
+#chinaMap {
+    background-color: transparent; /* 透明背景 */
+    border-radius: 8px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Banner图片 */
+.banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    border: 1px solid #e0e0e0; /* 扁平化浅色边框 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 轻微阴影增强扁平化效果 */
+}
+
+.banner-img:hover {
+    transform: scale(1.02);
+}
+
+/* Banner文字 */
+.banner-text {
+    flex: 1;
+    min-width: 300px;
+    text-align: left;
+    margin-top: 20px;
+}
+
+.overview-img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.overview-image:hover .overview-img {
+    transform: scale(1.05);
+}
+
+/* 统计数据展示区域 */
+.overview-stats {
+    margin-top: 20px;
+    padding: 15px;
+    border-left: 4px solid #3498db;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.overview-stats .highlight {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.overview-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.overview-text p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.overview-chart {
+    padding: 20px;
+    position: relative;
+    height: 300px;
+}
+
+.overview-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 主要内容 */
+.main-content {
+    padding: 40px;
+    margin-bottom: 40px;
+}
+
+/* 章节样式 */
+.section {
+    margin-bottom: 60px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+    display: flex;
+    align-items: center;
+}
+
+.section h2::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 30px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    margin-right: 15px;
+    border-radius: 5px;
+}
+
+/* 章节布局 - 左侧图片，右侧文字 */
+.section-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+/* 上下结构布局 */
+.section-layout.vertical {
+    flex-direction: column;
+    gap: 20px;
+}
+
+.top-images {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.top-images .section-image {
+    max-height: 400px;
+    border-radius: 8px;
+}
+
+.bottom-content {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 左文右图布局 */
+.section-layout.reverse {
+    flex-direction: row;
+}
+
+.section-layout.reverse .right-content {
+    order: 1;
+    flex: 1;
+    min-width: 300px;
+}
+
+.section-layout.reverse .left-content {
+    order: 2;
+    flex: 1;
+    min-width: 300px;
+}
+
+.section-layout.reverse .left-image {
+    order: 2;
+    flex: 0 0 400px;
+    max-height: 500px;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-image {
+    flex: 0 0 400px;
+    height: auto;
+    max-height: 500px;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.section-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    border: 1px solid #e0e0e0; /* 扁平化浅色边框 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 轻微阴影增强扁平化效果 */
+}
+
+.left-image:hover .section-image {
+        transform: scale(1.05);
+    }
+
+    .right-content {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    /* 流感与感冒对比表格样式 */
+    .flu-comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .flu-comparison-table th {
+        background-color: #f08a5d;
+        color: white;
+        padding: 12px;
+        font-weight: bold;
+    }
+    
+    .flu-comparison-table td {
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .flu-comparison-table tr:nth-child(odd) td {
+        background-color: #fff3e0;
+    }
+    
+    .flu-comparison-table tr:nth-child(even) td {
+        background-color: #ffffff;
+    }
+    
+    .flu-comparison-table tr:first-child th {
+        border-bottom: 2px solid #f08a5d;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .flu-comparison-table {
+            font-size: 12px;
+        }
+        
+        .flu-comparison-table th,
+        .flu-comparison-table td {
+            padding: 8px 5px;
+        }
+    }
+
+.right-content h3,
+.bottom-content h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    margin-top: 5px;
+}
+
+/* 为图片旁边的文字描述段落添加小图标 */
+.right-content p,
+.bottom-content p,
+.overview-text-content p {
+    padding: 0 0 0 25px;
+    position: relative;
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.right-content p::before,
+.bottom-content p::before,
+.overview-text-content p::before {
+    content: '▸';
+    color: #3498db;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 16px;
+}
+
+/* 高亮文本 */
+.highlight {
+    padding: 15px;
+    margin: 20px 0;
+}
+
+/* 温馨提示样式 */
+.warm-tip-title {
+    color: #e67e22 !important;
+    font-weight: bold;
+    font-size: 1.3rem !important;
+    margin-bottom: 8px !important;
+    margin-top: 5px !important;
+    line-height: 1.4 !important;
+    padding: 0 5px !important;
+}
+
+.warm-tip {
+    background-color: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 10px 15px;
+    margin: 8px 0 !important;
+    border-radius: 6px;
+    line-height: 1.5 !important;
+}
+
+.warm-tip p {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+    padding: 0 0 0 25px !important;
+    line-height: 1.5 !important;
+    height: auto;
+    min-height: auto;
+}
+
+.warm-tip p::before {
+    content: '⚠️';
+    font-size: 16px;
+    margin-right: 8px;
+    color: #ffc107;
+    top: 5px !important;
+}
+
+/* 温馨提示布局调整 */
+.warm-tip-layout {
+    margin-bottom: 15px !important;
+    margin-top: 5px !important;
+    gap: 15px !important;
+    align-items: center !important;
+    padding: 5px 0 !important;
+    max-height: none;
+}
+
+.warm-tip-layout .right-content {
+    padding: 0 10px !important;
+    margin: 0 !important;
+    flex: 1;
+}
+
+.warm-tip-layout .left-image {
+    height: auto !important;
+    max-height: 200px !important;
+    flex: 0 0 280px !important;
+    margin: 0 !important;
+    padding: 0 10px !important;
+}
+
+.warm-tip-layout .section-image {
+    max-height: 200px !important;
+    object-fit: contain;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 移除温馨提示部分的所有额外间距 */
+.section .warm-tip-layout {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.highlight-number {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* 图表区域 */
+.chart-section {
+    margin-top: 30px;
+    padding: 20px;
+    position: relative;
+    height: 450px;
+}
+
+.chart-section canvas {
+    height: 400px !important;
+    max-height: 400px;
+}
+
+/* 数据来源标注 */
+.data-source {
+    font-size: 0.85rem;
+    color: #667eea;
+    text-align: left;
+    margin-top: 10px;
+    font-style: italic;
+    display: inline-block;
+    padding: 5px 12px;
+    border-left: 3px solid #667eea;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    float: none;
+    clear: both;
+}
+
+.data-source:hover {
+    transform: translateX(5px);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .data-source {
+        float: none;
+        text-align: center;
+        display: block;
+        margin: 10px auto 0;
+        max-width: 90%;
+        border-left: none;
+        border-top: 3px solid #667eea;
+        padding: 10px 5px;
+    }
+    
+    .data-source:hover {
+        transform: translateY(5px);
+    }
+}
+
+/* 原因分析模块 */
+.causes-container {
+    position: relative;
+    height: auto;
+}
+
+.cause-item {
+    display: block;
+    margin-bottom: 60px;
+    animation: fadeIn 0.5s ease;
+}
+
+.cause-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cause-header h3 {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.cause-number {
+    font-size: 1.2rem;
+    color: #3498db;
+    font-weight: bold;
+    background-color: #e8f4f8;
+    padding: 5px 15px;
+    border-radius: 20px;
+}
+
+/* 原因分析导航 - 隐藏，因为不再需要切换 */
+.cause-nav {
+    display: none;
+}
+
+/* 总结列表 */
+.conclusion-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.conclusion-list li {
+    padding: 10px 0 10px 30px;
+    position: relative;
+    margin-bottom: 10px;
+    line-height: 1.8;
+}
+
+.conclusion-list li::before {
+    content: '▸';
+    color: #3498db;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 10px;
+}
+
+/* 章节内容中的列表样式 */
+.section .right-content ul,
+.section .left-content ul,
+.section .bottom-content ul {
+    list-style-type: none;
+    padding: 5px 0;
+    margin: 0;
+}
+
+.section .right-content li,
+.section .left-content li,
+.section .bottom-content li {
+    padding: 6px 0 6px 35px;
+    position: relative;
+    margin-bottom: 3px;
+    line-height: 1.5;
+    background-color: #f8fafc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.section .right-content li:hover,
+.section .left-content li:hover,
+.section .bottom-content li:hover {
+    background-color: #e8f4f8;
+    transform: translateX(5px);
+}
+
+.section .right-content li::before,
+.section .left-content li::before,
+.section .bottom-content li::before {
+    content: '▸';
+    color: #3498db;
+    font-weight: bold;
+    font-size: 1.2rem;
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    transition: color 0.3s ease;
+}
+
+.section .right-content li:hover::before,
+.section .left-content li:hover::before,
+.section .bottom-content li:hover::before {
+    color: #2980b9;
+}
+
+/* 症状时间轴样式 */
+.symptom-timeline {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.timeline-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.timeline-header h3 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+/* Timeline chart container */
+.timeline-chart {
+    height: 200px; /* 设置为合适的高度，约为之前的50% */
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow: hidden;
+}
+
+.timeline-chart img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+    max-height: 100%;
+}
+
+.timeline-chart img:hover {
+    transform: scale(1.02);
+}
+
+/* 症状表格样式 */
+.symptom-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.symptom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.symptom-table th,
+.symptom-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.symptom-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.symptom-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.symptom-table tr:last-child td {
+    border-bottom: none;
+}
+
+.symptom-table td:first-child {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    text-align: left;
+    min-width: 150px;
+}
+
+/* 症状严重程度颜色 */
+.symptom-severe {
+    color: #e74c3c; /* 红色 - 严重 */
+    font-weight: bold;
+}
+
+.symptom-worsen {
+    color: #f39c12; /* 橙色 - 加重 */
+    font-weight: bold;
+}
+
+.symptom-improve {
+    color: #2ecc71; /* 绿色 - 好转 */
+    font-weight: bold;
+}
+
+/* 症状流程图 */
+.symptom-flowchart {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin: 30px 0;
+    background-color: white;
+    border-radius: 8px;
+    padding: 40px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 流程图包装器 */
+.flowchart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* 温度计样式 */
+.thermometer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.thermometer-scale {
+    width: 2px;
+    height: 100px;
+    background-color: #ccc;
+    position: relative;
+    overflow: hidden;
+}
+
+.thermometer-mercury {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #e74c3c;
+}
+
+.thermometer-bulb {
+    width: 10px;
+    height: 10px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    margin-top: 2px;
+}
+
+/* 流程项 */
+.flow-item {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    margin: 0 30px;
+}
+
+/* 流程圆圈 */
+.flow-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    z-index: 10;
+}
+
+/* 圆圈颜色 */
+.day1-circle {
+    background-color: #f1c40f;
+    border: 3px solid #f39c12;
+}
+
+.day2-circle {
+    background-color: #f39c12;
+    border: 3px solid #e67e22;
+}
+
+.day3-circle {
+    background-color: #e74c3c;
+    border: 3px solid #c0392b;
+    transform: scale(1.1);
+}
+
+.day4-circle {
+    background-color: #f39c12;
+    border: 3px solid #e67e22;
+}
+
+.day5-circle {
+    background-color: #9b59b6;
+    border: 3px solid #8e44ad;
+}
+
+.day6-circle {
+    background-color: #3498db;
+    border: 3px solid #2980b9;
+}
+
+.day7-circle {
+    background-color: #2980b9;
+    border: 3px solid #1f618d;
+}
+
+/* 流程文字 */
+.flow-text {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    z-index: 15;
+    text-align: center;
+}
+
+/* 文字位置 */
+.flow-text-day1 {
+    top: -60px;
+    left: 20px;
+    width: 100px;
+    text-align: left;
+    transform: translateX(-50%);
+}
+
+.flow-text-day3 {
+    top: -80px;
+    left: 50%;
+    width: 60px;
+    text-align: center;
+    transform: translateX(-50%);
+    line-height: 1.2;
+}
+
+/* 连接线 */
+.flow-connector {
+    position: absolute;
+    height: 6px;
+    background-color: transparent;
+    z-index: 5;
+    border-top: 4px solid;
+    border-radius: 2px;
+    transform-origin: left center;
+}
+
+/* 连接线样式 */
+.connector1 {
+    width: 120px;
+    left: 80px;
+    top: 80px;
+    transform: rotate(-15deg);
+    border-color: #f39c12;
+}
+
+.connector2 {
+    width: 100px;
+    left: 200px;
+    top: 80px;
+    transform: rotate(-45deg);
+    border-color: #e74c3c;
+}
+
+.connector3 {
+    width: 110px;
+    left: 320px;
+    top: 80px;
+    transform: rotate(45deg);
+    border-color: #e74c3c;
+}
+
+.connector4 {
+    width: 100px;
+    left: 440px;
+    top: 80px;
+    transform: rotate(15deg);
+    border-color: #9b59b6;
+}
+
+.connector5 {
+    width: 120px;
+    left: 560px;
+    top: 80px;
+    transform: rotate(-15deg);
+    border-color: #3498db;
+}
+
+.connector6 {
+    width: 100px;
+    left: 680px;
+    top: 80px;
+    transform: rotate(-30deg);
+    border-color: #2980b9;
+}
+
+/* 调整容器宽度 */
+.flowchart-wrapper {
+    width: calc(100% - 100px);
+    margin-left: 100px;
+    overflow-x: auto;
+}
+
+
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .section-layout,
+    .overview-content {
+        flex-direction: column;
+    }
+    
+    .left-image,
+    .overview-image {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+    }
+    
+    .right-content,
+    .overview-text {
+        width: 100%;
+    }
+    
+    .section h2,
+    .overview-title {
+        font-size: 1.5rem;
+    }
+    
+    .overview-image {
+        height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content,
+    .overview-section {
+        padding: 20px;
+    }
+    
+    .left-image,
+    .overview-image {
+        height: 250px;
+    }
+    
+    .chart-section,
+    .overview-chart {
+        padding: 15px;
+    }
+    
+    .cause-nav {
+        gap: 10px;
+    }
+    
+    .cause-nav-item {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .highlight {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+    
+    .overview-chart {
+        height: 250px;
+    }
+    
+    .overview-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content,
+    .overview-section {
+        padding: 15px;
+    }
+    
+    .section h2,
+    .overview-title {
+        font-size: 1.3rem;
+    }
+    
+    .left-image,
+    .overview-image {
+        height: 200px;
+    }
+    
+    .cause-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .cause-nav {
+        justify-content: flex-start;
+    }
+    
+    .overview-chart {
+        height: 200px;
+    }
+}
+
+/* 所有类名添加_zzh前缀 */
+        /* 独立的便签样式类 */
+        .note-style {
+            background-color: #fff9c4; /* 浅黄色便签背景 */
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1); /* 便签阴影效果 */
+            transform: rotate(-0.5deg); /* 轻微旋转，增加便签感 */
+            position: relative;
+        }
+        
+        /* 便签折角效果 */
+        .note-style::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 30px solid #ffd54f;
+            border-left: 30px solid transparent;
+            border-right: 0 solid transparent;
+            border-bottom: 0 solid transparent;
+            border-radius: 0 8px 0 0;
+        }
+        
+        /* 恢复_zzh_container原有样式，移除便签样式 */
+        ._zzh_container {
+            width: 100%; /* 自适应宽度 */
+            max-width: 100%; /* 放宽最大宽度，避免第七天溢出 */
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px 15px; /* 适配移动端内边距 */
+            border-radius: 8px;
+            overflow-x: auto; /* 移动端横向滚动 */
+        }
+        ._zzh_title {
+            text-align: center;
+            color: #e60000;
+            font-size: clamp(28px, 6vw, 48px); /* 响应式字体 */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        ._zzh_sub-title {
+            text-align: center;
+            font-size: clamp(20px, 4vw, 32px); /* 响应式字体 */
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        /* 趋势图样式 - 适配移动端 */
+        ._zzh_trend-section {
+            position: relative;
+            height: clamp(200px, 40vw, 300px); /* 响应式高度 */
+            margin-bottom: 40px;
+            overflow: hidden; /* 保持溢出隐藏，避免节点溢出影响布局 */
+            width: 100%; /* 完全自适应宽度 */
+            min-width: auto; /* 移除固定最小宽度，允许在小屏幕上收缩 */
+        }
+        
+        /* 响应式容器，在小屏幕上添加横向滚动 */
+        ._zzh_container {
+            overflow-x: auto; /* 小屏幕横向滚动 */
+            -webkit-overflow-scrolling: touch; /* 移动端平滑滚动 */
+        }
+        /* 美化后的连线（新增第六七天连线，精准居中） */
+        ._zzh_connection-lines {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
+        /* 温度计样式（细化） */
+        ._zzh_thermometer {
+            position: absolute;
+            left: 10px; /* 左移避免移动端遮挡 */
+            top: 50%;
+            transform: translateY(-50%); /* 垂直居中 */
+            width: 15px;
+            height: 80%; /* 百分比高度适配 */
+            border: 1px solid #000;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(to bottom, #fff 0%, #fff 30%, #ff4d4d 30%, #ff4d4d 100%);
+            z-index: 1;
+        }
+        ._zzh_thermometer::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 25px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            background-color: #ff4d4d;
+        }
+        /* 天数节点 - 适配移动端 */
+        ._zzh_day-node {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            font-size: clamp(12px, 2vw, 16px); /* 响应式字体 */
+            z-index: 2;
+            transform: translate(-50%, -50%); /* 基于中心定位 */
+        }
+        ._zzh_day-node ._zzh_circle {
+            width: clamp(40px, 8vw, 60px); /* 响应式圆形大小 */
+            height: clamp(40px, 8vw, 60px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            border: 2px solid;
+            font-size: clamp(12px, 1.8vw, 14px);
+        }
+        ._zzh_day-node ._zzh_text {
+            margin-left: 8px;
+            white-space: nowrap;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 移动端文字溢出省略 */
+        }
+        /* 节点位置（重新校准，避免第七天溢出） */
+        ._zzh_day1 {
+            top: 70%;
+            left: 12%;
+        }
+        ._zzh_day1 ._zzh_circle {
+            background-color: #ffd700;
+            border-color: #ffd700;
+        }
+        ._zzh_day2 {
+            top: 57%;
+            left: 26%;
+        }
+        ._zzh_day2 ._zzh_circle {
+            background-color: #ffd700;
+            border-color: #ffd700;
+        }
+        ._zzh_day3 {
+            top: 41%;
+            left: 45%;
+        }
+        ._zzh_day3 ._zzh_circle {
+            background-color: #ff4d4d;
+            border-color: #ff4d4d;
+            color: #fff;
+        }
+        ._zzh_day4 {
+            top: 56%;
+            left: 58%;
+        }
+        ._zzh_day4 ._zzh_circle {
+            background-color: #00bfff;
+            border-color: #00bfff;
+            color: #fff;
+        }
+        ._zzh_day5 {
+            top: 69%;
+            left: 68%;
+        }
+        ._zzh_day5 ._zzh_circle {
+            background-color: #9370db;
+            border-color: #9370db;
+            color: #fff;
+        }
+        ._zzh_day6 {
+            top: 83%;
+            left: 78%;
+        }
+        ._zzh_day6 ._zzh_circle {
+            background-color: #00fa9a;
+            border-color: #00fa9a;
+        }
+        ._zzh_day7 {
+            top: 89%;
+            left: 93%; /* 调整位置，与延长后的连线匹配 */
+        }
+        ._zzh_day7 ._zzh_circle {
+            background-color: #4169e1;
+            border-color: #4169e1;
+            color: #fff;
+        }
+        
+        /* 小屏幕设备节点位置调整 */
+        @media (max-width: 768px) {
+            ._zzh_day1 {
+                left: 15%;
+            }
+            ._zzh_day2 {
+                left: 28%;
+            }
+            ._zzh_day3 {
+                left: 45%;
+            }
+            ._zzh_day4 {
+                left: 58%;
+            }
+            ._zzh_day5 {
+                left: 68%;
+            }
+            ._zzh_day6 {
+                left: 78%;
+            }
+            ._zzh_day7 {
+                left: 88%;
+            }
+        }
+        
+        /* 超小屏幕设备节点位置调整 */
+        @media (max-width: 480px) {
+            ._zzh_day1 {
+                left: 20%;
+            }
+            ._zzh_day2 {
+                left: 30%;
+            }
+            ._zzh_day3 {
+                left: 45%;
+            }
+            ._zzh_day4 {
+                left: 55%;
+            }
+            ._zzh_day5 {
+                left: 65%;
+            }
+            ._zzh_day6 {
+                left: 75%;
+            }
+            ._zzh_day7 {
+                left: 82%;
+            }
+        }
+        /* 连线容器（SVG）- 响应式 */
+        ._zzh_connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        /* 表格样式 - 适配移动端 */
+        ._zzh_symptom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: clamp(12px, 2vw, 14px); /* 响应式字体 */
+        }
+        ._zzh_symptom-table th, ._zzh_symptom-table td {
+            border: 1px solid #ccc;
+            padding: 8px 5px; /* 减少内边距适配移动端 */
+            word-break: break-all; /* 文字换行 */
+        }
+        ._zzh_symptom-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        ._zzh_red-text {
+            color: #e60000;
+            font-weight: bold;
+        }
+        ._zzh_orange-text {
+            color: #ff7f00;
+            font-weight: bold;
+        }
+
+        /* 媒体查询 - 针对小屏手机优化 */
+        @media (max-width: 600px) {
+            ._zzh_trend-section {
+                height: 250px; /* 调整高度适配小屏幕 */
+            }
+            ._zzh_day-node ._zzh_text {
+                display: none; /* 小屏隐藏文字，只保留圆形 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <!-- 新增图片展示区域 -->
+    <div class="overview-banner">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h2 class="overview-title">当流感变得"更黏人"</h2>
+            </div>
+            <div class="banner-image">
+                <div id="chinaMap" style="width: 100%; height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+<!-- 1. 现状分析 -->
+        <section class="section" id="current-situation">
+                <div class="overview-content">
+            <div class="overview-text">
+                <div class="overview-content-inner">
+                    <div class="overview-text-content">
+                        <p>
+                            根据中国疾病预防控制中心发布的2025年第42周《全国急性呼吸道传染病哨点监测情况》显示，2025年10月13日-10月19日哨点医院门急诊流感样病例呼吸道样本检测阳性率跟上一周相比增加了2.2%，是同期其他呼吸道传染病毒(如新冠病毒、呼吸道合胞病毒、腺病毒、鼻病毒等)增加最多的。
+                        </p>
+                        <div class="data-source">数据来源：中国疾病预防控制中心</div>
+                    </div>
+                    <div class="overview-image" style="height: 80%;">
+                        <img src="./imgs/imgs/f01.png" alt="甲流高发期场景" class="overview-img" style="height: 100%; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+        </div>
+                
+                <!-- 新增模块：哨点监测情况 -->
+                <div class="section-layout">
+                    <div class="left-image" style="height: 80%;">
+                        <img src="./imgs/imgs/f02.png" alt="门急诊流感样病例" class="section-image" style="height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="right-content">
+                        <h3>南方省份流感样病例占门急诊病例总数百分比</h3>
+                        <p>2025 年第 49 周（2025 年 12 月 1 日－2025 年 12 月 7 日），南方省份哨点医院报告的 ILI%为 11.1%， 高于前一周水平（10.3%），高于 2022 年、2023 年和 2024 年同期水平（3.9%、9.5%和 3.7%）。</p>
+                        <div class="data-source">数据来源：国家级哨点医院</div>
+                    </div>
+                </div>
+                
+                <!-- 新增模块：南方省份流感活动情况 -->
+                <div class="section-layout reverse">
+                    <div class="right-content">
+                        <h3>北方省份流感样病例占门急诊病例总数百分比</h3>
+                        <p>2025 年第 49 周，北方省份哨点医院报告的ILI%为 7.9%，低于前一周水平（9.1%），高于 2022 年、 2023 年和 2024 年同期水平（2.6%、7.6%和 4.7%）。</p>
+                        <div class="data-source">数据来源：国家级哨点医院</div>
+                    </div>
+                    <div class="left-image" style="height: 80%;">
+                        <img src="./imgs/imgs/f03.png" alt="南方省份流感活动情况" class="section-image" style="height: 100%; object-fit: contain;">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1. 甲型流感常识 -->
+            <section class="section" id="flu-knowledge">
+                <h2>01 甲型流感常识</h2>
+                <div class="section-layout">
+                    <!-- <div class="left-image">
+                        <img src="https://picsum.photos/id/533/400/300" alt="甲流1-7天症状" class="section-image">
+                    </div>
+                    <div class="right-content">
+                        <h3>1-7天症状变化</h3>
+                        <p>甲型流感患者在感染后1-7天会经历明显的症状变化，通常第3天达到症状高峰，随后逐渐缓解。</p>
+                        <p>主要症状包括发热、头痛、肌肉乏力、咳嗽、咽干咽痛等，体温可高达39-40℃，持续3-4天后逐渐下降。</p>
+                        <p>及时就医和休息是缓解症状、缩短病程的关键。</p>
+                    </div> -->
+                </div>
+                
+                <!-- 症状时间轴 -->
+                <div class="_zzh_container note-style">
+                    <!-- <h1 class="_zzh_title">甲型流感</h1>
+                    <h2 class="_zzh_sub-title">1-7天症状</h2> -->
+
+                    <!-- 趋势图区域 -->
+                    <div class="_zzh_trend-section">
+                        <!-- 细化后的温度计 -->
+                        <div class="_zzh_thermometer"></div>
+
+                        <!-- 美化后的连线（新增第六七天连线，精准居中） -->
+                        <svg class="_zzh_connection-lines" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">
+                            <!-- 1-2天连线（黄色） -->
+                            <path d="M 100 210 Q 160 190, 230 170" stroke="#ffd700" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- 2-3天连线（黄色） -->
+                            <path d="M 230 170 Q 300 145, 380 120" stroke="#ffd700" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- 3-4天连线（红色） -->
+                            <path d="M 380 120 Q 455 145, 530 170" stroke="#ff4d4d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- 4-5天连线（浅蓝色） -->
+                            <path d="M 530 170 Q 595 195, 660 220" stroke="#00bfff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- 5-6天连线（紫色） -->
+                            <path d="M 660 220 Q 690 235, 750 250" stroke="#9370db" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- 6-7天连线（绿色，新增） -->
+                            <path d="M 750 250 Q 820 270, 900 290" stroke="#00fa9a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 天数节点 -->
+                        <div class="_zzh_day-node _zzh_day1">
+                            <div class="_zzh_circle">第1天</div>
+                            <div class="_zzh_text">开始发热</div>
+                        </div>
+                        <div class="_zzh_day-node _zzh_day2">
+                            <div class="_zzh_circle">第2天</div>
+                            <div class="_zzh_text">体温急骤上升</div>
+                        </div>
+                        <div class="_zzh_day-node _zzh_day3">
+                            <div class="_zzh_circle">第3天</div>
+                            <div class="_zzh_text">反复高热体温可达39-40℃</div>
+                        </div>
+                        <div class="_zzh_day-node _zzh_day4">
+                            <div class="_zzh_circle">第4天</div>
+                            <div class="_zzh_text">体温开始下降</div>
+                        </div>
+                        <div class="_zzh_day-node _zzh_day5">
+                            <div class="_zzh_circle">第5天</div>
+                            <div class="_zzh_text">逐渐消退</div>
+                        </div>
+                        <div class="_zzh_day-node _zzh_day6">
+                            <div class="_zzh_circle">第6天</div>
+                            <div class="_zzh_text">症状缓解</div> <!-- 补充文字，避免空节点 -->
+                        </div>
+                        <div class="_zzh_day-node _zzh_day7">
+                            <div class="_zzh_circle">第7天</div>
+                            <div class="_zzh_text">基本正常</div>
+                        </div>
+                    </div>
+
+                    <!-- 症状表格 -->
+                    <table class="_zzh_symptom-table">
+                        <tr>
+                            <th>症状</th>
+                            <th>第1天</th>
+                            <th>第2天</th>
+                            <th>第3天</th>
+                            <th>第4天</th>
+                            <th>第5天</th>
+                            <th>第6天</th>
+                            <th>第7天</th>
+                        </tr>
+                        <tr>
+                            <td>头痛<br>肌肉<br>乏力</td>
+                            <td>较轻</td>
+                            <td class="_zzh_red-text">加重</td>
+                            <td class="_zzh_red-text">剧烈</td>
+                            <td class="_zzh_orange-text">开始<br>好转</td>
+                            <td class="_zzh_orange-text">仍有<br>症状</td>
+                            <td>减轻</td>
+                            <td>明显<br>好转</td>
+                        </tr>
+                        <tr>
+                            <td>咳嗽<br>干咳</td>
+                            <td>轻微</td>
+                            <td>较轻</td>
+                            <td>较轻</td>
+                            <td class="_zzh_red-text">加重</td>
+                            <td class="_zzh_red-text">症状<br>明显</td>
+                            <td class="_zzh_orange-text">症状<br>持续</td>
+                            <td class="_zzh_orange-text">症状<br>持续</td>
+                        </tr>
+                        <tr>
+                            <td>咽干<br>咽痛</td>
+                            <td>轻微</td>
+                            <td>较轻</td>
+                            <td>较轻</td>
+                            <td class="_zzh_red-text">加重</td>
+                            <td class="_zzh_red-text">症状<br>明显</td>
+                            <td class="_zzh_orange-text">症状<br>持续</td>
+                            <td class="_zzh_orange-text">症状<br>持续</td>
+                        </tr>
+                        <tr>
+                            <td>总体<br>感受</td>
+                            <td>轻微<br>不适</td>
+                            <td class="_zzh_red-text">症状<br>加重</td>
+                            <td class="_zzh_red-text">症状<br>较重</td>
+                            <td class="_zzh_red-text">症状<br>较重</td>
+                            <td>开始<br>好转</td>
+                            <td>持续<br>好转</td>
+                            <td>明显<br>好转</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. 流感与感冒的区别 -->
+            <section class="section" id="flu-vs-cold">
+                <h2>02 流感与感冒的区别</h2>
+                <div class="section-layout">
+                    <div class="right-content">
+                        <p>流感是由流感病毒引起的急性呼吸道传染病，通常分为甲乙丙丁四种类型，其中甲型和乙型最常见。<span style="color: #f08a5d;">流感最主要的特点就是“急”</span>，它和普通感冒相比具有：</p>
+                        <!-- 对比表格 -->
+                        <table class="flu-comparison-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>流感</th>
+                                    <th>普通感冒</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>致病原</td>
+                                    <td>流感病毒</td>
+                                    <td>鼻病毒、冠状病毒等</td>
+                                </tr>
+                                <tr>
+                                    <td>流感病原学检测</td>
+                                    <td>阳性</td>
+                                    <td>阴性</td>
+                                </tr>
+                                <tr>
+                                    <td>传染性</td>
+                                    <td>强</td>
+                                    <td>弱</td>
+                                </tr>
+                                <tr>
+                                    <td>发病的季节性</td>
+                                    <td>有明显季节性<br>（我国北方为10月至次年3月多发）</td>
+                                    <td>季节性不明显</td>
+                                </tr>
+                                <tr>
+                                    <td>发热程度</td>
+                                    <td>多高热(39-40℃)<br>可伴寒颤</td>
+                                    <td>不发热或轻、中度热<br>无寒颤</td>
+                                </tr>
+                                <tr>
+                                    <td>持续时间</td>
+                                    <td>3-5 天</td>
+                                    <td>1-2 天</td>
+                                </tr>
+                                <tr>
+                                    <td>全身症状</td>
+                                    <td>重，头痛、全身肌肉酸痛、乏力</td>
+                                    <td>轻或无</td>
+                                </tr>
+                                <tr>
+                                    <td>病程</td>
+                                    <td>5-10 天</td>
+                                    <td>5-7天</td>
+                                </tr>
+                                <tr>
+                                    <td>并发症</td>
+                                    <td>可合并肺炎、中耳炎</td>
+                                    <td>少见</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 原因分析 -->
+            <section class="section" id="causes">
+                <h2>03 原因分析</h2>
+                <div class="causes-container">
+                    <!-- 原因1：病毒变异 -->
+                    <div class="cause-item active" data-index="0">
+                        <div class="cause-header">
+                            <h3>变异新毒株</h3>
+                            <span class="cause-number">01</span>
+                        </div>
+                        <div class="section-layout">
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/y01.png" alt="病毒变异示意图" class="section-image">
+                            </div>
+                            <div class="right-content">
+                                <h4>H3N2流感病毒自1968年首次被发现以来，已存在超过57年</h4>
+                                <p>流感病毒本就是不断变化的，就以甲流为例，不管是去年主打的H1N1毒株，还是今年的主角H3N2，都只是甲流家族中的一个成员而已，其他成员还包括H5N1，H6、H7等。</p>
+                                <p>再说了，大家不要搞忘流感还有一个“主角”叫乙流，在整个流感流行季中，甲流和乙流是有可能同时或者交替流行的。</p>
+                            </div>
+                        </div>
+
+                        <div class="section-layout reverse">
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/y02.png" alt="病毒变异示意图" class="section-image">
+                            </div>
+                            <div class="right-content">
+                                <p>根据中国疾病预防控制中心最新发布的流感监测周报(10月13日-10月19日)来看，流感在南方省份活动明显增强，且今年流行毒株与去年不同，以甲型H3N2Q为主(去年流行的主要毒株是甲型H1N1)。</p>
+                                <p>这一变化带来的关键问题是:大众对今年流行的甲型H3N2毒株的免疫力普遍较低，可能导致大家更容易感染。</p>
+                                <div class="data-source">数据来源：中国疾病预防控制中心</div>
+                            </div>
+                        </div>
+                        <div class="section-layout">
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/y03.png" alt="病毒变异示意图" class="section-image">
+                            </div>
+                            <div class="right-content">
+                                <h4>H3N2和H1N1毒株引起的症状差别不大</h4>
+                                <p>H3N2和H1N1引起的症状非常相似，都属于典型的流感症状，存在细微的与个体有关的倾向性差异。</p>
+                                <p>共同的核心症状主要是这些：高烧（39°C以上很常见）、全身肌肉酸痛、乏力、头痛、咳嗽、喉咙痛、部分患者有胃肠道不适（如恶心、腹泻，但在儿童中更常见）。</p>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <canvas id="cause1Chart"></canvas>
+                            <div class="data-source">数据来源：中国疾控中心病毒病预防控制所</div>
+                        </div>
+                    </div>
+
+                    <!-- 原因2：气候变化 -->
+                    <div class="cause-item" data-index="1">
+                        <div class="cause-header">
+                            <h3>气候变化</h3>
+                            <span class="cause-number">02</span>
+                        </div>
+                        <div class="section-layout reverse">
+                            <div class="right-content">
+                                <p>2024-2025年冬季气温异常波动，多地出现“暖冬”现象，同时空气湿度较低，这种气候条件有利于甲流病毒的传播和存活。</p>
+                                <p>研究显示，甲流病毒在5-20℃、相对湿度低于40%的环境中存活时间可延长3-5倍，显著增加了传播风险。</p>
+                            </div>
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/qhyy.jpg" alt="气候变化示意图" class="section-image" style="height: 260px; object-fit: contain;">   
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <canvas id="cause2Chart"></canvas>
+                            <div class="data-source">数据来源：中国气象局</div>
+                        </div>
+                    </div>
+
+                    <!-- 原因3：人群免疫力下降 -->
+                    <div class="cause-item" data-index="2">
+                        <div class="cause-header">
+                            <h3>人群免疫力下降</h3>
+                            <span class="cause-number">03</span>
+                        </div>
+                        <div class="section-layout">
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/mylxj.jpg" alt="人群免疫力示意图" class="section-image">
+                            </div>
+                            <div class="right-content">
+                                <p>由于前几年疫情防控措施的影响，人群自然感染甲流的机会减少，导致群体免疫力下降。同时，疫苗接种率不足也是重要因素。</p>
+                                <p class="highlight">2024年全国甲流疫苗接种率仅为<span class="highlight-number">18.5%</span>，远低于世界卫生组织建议的40%以上水平。</p>
+                            </div>
+                        </div>
+                        <div class="section-layout reverse">
+                            <div class="left-image">
+                                <!-- 高危人群饼图 -->
+                                <div class="chart-section" style="height: 80%;margin-top: 0px;padding: 0;">
+                                    <canvas id="highRiskChart" ></canvas>
+                                    <div class="data-source">数据来源：四川省2025年秋冬季流感疫情风险评估报告</div>
+                                </div>
+                            </div>
+                            <div class="right-content">
+                                <h4>以下人群容易发展重型和危重型</h4>
+                                <p>＜5岁的儿童</p>
+                                <p>＞65岁的老年人：伴有以下疾病或者状况者：慢性呼吸系统疾病、心血管系统疾病、慢性肾脏疾病、肝病、血液系统疾病、糖尿病、肿瘤性疾病、免疫抑制等</p>
+                                <p>肥胖者</p>
+                                <p>妊娠及围产期女性</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 高危人群饼图
+                        <div class="chart-section">
+                            <canvas id="highRiskChart"></canvas>
+                            <div class="data-source">数据来源：四川省CDC、哨点医院、妇幼保健院监测系统</div>
+                        </div> -->
+                        
+                        <div class="chart-section">
+                            <canvas id="cause3Chart"></canvas>
+                            <div class="data-source">数据来源：国家卫健委</div>
+                        </div>
+                    </div>
+
+                    <!-- 原因4：人口流动增加 -->
+                    <div class="cause-item">
+                        <div class="cause-header">
+                            <h3>人口流动增加</h3>
+                            <span class="cause-number">04</span>
+                        </div>
+                        <div class="section-layout reverse">
+                            <div class="right-content">
+                                <p>甲流病毒的跨区域传播，本质上是一场“人与病毒的地理迁徙”。研究表明，人口流动在疫情初期能显著加速病毒扩散，而交通枢纽则是病毒传播的关键节点。</p>
+                            </div>
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/bdby.jpg" alt="人口流动示意图" class="section-image">
+                            </div>
+                        </div>
+
+
+                        <div class="section-layout">
+                            <div class="left-image" style="height: 80%;">
+                                <img src="./imgs/imgs/r01.png" alt="人口流动示意图" class="section-image">
+                            </div>
+                            <div class="right-content">
+                                <p>2025年甲流疫情中，浙江、广东、四川等交通枢纽密集、人口流动频繁的省份，均报告了多起聚集性疫情。</p>
+                                <p>春节、国庆等假期的大规模人口流动，让病毒从疫情高发区扩散到周边城市乃至偏远地区，形成“核心城市辐射传播”的格局。特别是西南地区，作为2025年甲流暴发疫情最多的区域，其复杂的交通网络和频繁的省际流动，成为疫情扩散的重要推手。</p>
+                                <div class="data-source">数据来源：交通运输部</div>
+                            </div>
+                        </div>
+                        <!--<div class="chart-section">
+                            <canvas id="cause4Chart"></canvas>
+                            <div class="data-source">数据来源：交通运输部</div>
+                        </div>-->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 四川省成都市病例 -->
+            <section class="section" id="case-study">
+                <h2>04 以四川省成都市为例</h2>
+                
+                <!-- 第一部分：四川省
+                <div class="section-layout">
+                    <div class="left-image" style="height: 260px;">
+                        <img src="./imgs/imgs/d1.jpg" alt="四川省甲流情况" class="section-image" style="height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="right-content">
+                        <h3>四川省整体情况</h3>
+                        <p>2025年1-3月，四川省甲流确诊病例数达到35000例，较2024年同期增长了115%，位居全国前列。病例主要集中在成都、绵阳、德阳、南充等人口密集城市。</p>
+                        <p>四川省疾控中心采取了多项措施应对甲流高发：加强病毒监测、开展疫苗接种宣传、协调医疗资源、发布健康提示等。</p>
+                        <p>截至3月底，四川省甲流疫情已得到有效控制，新增病例数呈明显下降趋势。</p>
+                    </div>
+                </div> -->
+                
+                <!-- 第二部分：成都市 -->
+                <div class="section-layout reverse">
+                    <div class="right-content">
+                        <h3>以成都市妇女儿童中心医院为例</h3>
+                        <p>2025年冬季接诊数据• 接诊时间：2025年10月25日-12月15日。</p>
+                        <p>接诊总量：儿科门诊接诊流感样病例18720例，较2024年同期增长42%；其中确诊甲流病例12450例，占流感样病例的66.5%。</p>
+                        <p>年龄分布：0-3岁婴幼儿占甲流确诊病例的71%（8839例），3-6岁幼儿占22%（2739例），6岁以上儿童占7%（872例）。</p>
+                        <p>症状表现：92%的患儿出现高热（39℃以上）、咳嗽、咽痛；12%的患儿伴随呕吐、腹泻；3%的患儿发展为肺炎、中耳炎等并发症，无死亡病例</p>
+                        <p>特点：2025年冬季甲流呈现低龄化、症状重、传播快特点，根据中国疾控中心监测显示，目前我国南方省份流感活动上升。10月30日，四川省疾病预防控制中心发布提醒，<span style="color: #f08a5d;">目前四川已进入流感流行期，主要流行毒株为甲型H3N2流感病毒。</span></p>
+                        
+                    </div>
+                    <div class="left-image" style="height: 260px;">
+                        <img src="./imgs/imgs/scgs.jpg" alt="成都医院" class="section-image" style="height: 100%; object-fit: contain;">
+                    </div>
+                </div>
+                
+                <!-- 1. 接诊总量图表 -->
+                <!-- <div class="chart-section">
+                    <canvas id="caseChart" style="height: 400px;"></canvas>
+                    <div class="data-source">数据来源：成都市妇女儿童中心医院</div>
+                </div> -->
+                
+                <!-- 2. 年龄分布图表 -->
+                <div class="chart-section">
+                    <canvas id="ageDistributionChart"></canvas>
+                    <div class="data-source">数据来源：成都市妇女儿童中心医院</div>
+                </div>
+                
+                <!-- 3. 症状表现图表 -->
+                <div class="chart-section">
+                    <canvas id="symptomChart"></canvas>
+                    <div class="data-source">数据来源：成都市妇女儿童中心医院</div>
+                </div>
+            </section>
+
+            <!-- 3. 接种疫苗 -->
+            <section class="section" id="vaccination">
+                <h2>05 接种疫苗</h2>
+                <div class="section-layout">
+                    <div class="left-image" style="height: 85%;margin-top: 20px;">
+                        <img src="./imgs/imgs/ym01.png" alt="接种疫苗" class="section-image" style="height: 50%; object-fit: contain;">
+                        <img src="./imgs/imgs/ym02.png" alt="接种疫苗" class="section-image" style="height: 50%; object-fit: contain;">
+                    </div>
+                    <div class="right-content">
+                        <h3>流感疫苗有哪些？该怎么打呢？</h3>
+                        <p>目前我国可供接种的流感疫苗主要有以下三种类型：</p>
+                        <ul>
+                            <li>流感病毒灭活（裂解）疫苗（注射）</li>
+                            <li>流感病毒灭活（亚单位）疫苗（注射）</li>
+                            <li>流感病毒减毒活疫苗</li>
+                        </ul>
+                        <p>而我们常说的流感疫苗“三价”和“四价”是指疫苗覆盖的流感病毒数量，并不是疫苗的类型，即三价疫苗包含两种甲型流感毒株和一种乙型流感毒株。四价疫苗则在此基础上再多覆盖一种乙型流感毒株。其中灭活疫苗是需要注射的那种，减毒活疫苗主要就是鼻喷的那种，给药途径是通过鼻子吸入，主要用于3-17岁的孩子。</p>
+                        
+                        <h3>哪些人建议接种疫苗？孕期月可以接种吗？</h3>
+                        <ul>
+                            <li>6个月至5岁的儿童</li>
+                            <li>患有基础疾病的人群，如糖尿病、高血压或者心脏疾病、慢性肺病等</li>
+                            <li>卫生保健工作者</li>
+                            <li>备孕期、孕期、哺乳期</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 医生建议 -->
+                <div class="section-layout">
+                    <div class="right-content" style="width: 100%; max-width: 100%;padding-top: 20px;">
+                        <h3>医生建议</h3>
+                        <!-- <p>每年的9-11月接种流感疫苗</p> -->
+                        <p>针对毒株的变更，医生提醒大众切勿惊慌，从病毒的“攻击结果”来看，只要是流感，结果都差不多。</p>
+                        <p>秋冬季节是流感等呼吸道传染病高发季，接种流感疫苗是预防和控制流感的有效措施。《中国流感疫苗预防接种技术指南（2023—2024）》明确推荐所有≥6月龄且无接种禁忌的人群进行接种。医生建议，在每年的9-11月接种流感疫苗，特别是老年人、儿童、慢性病患者等高危人群。从接种到产生抗体大概需要2-4周，所以要提前打疫苗才能起到最佳效果。</p>
+                        <h3>疫苗能完全抵抗流感吗?</h3>
+                        <p>流感疫苗的保护效力通常在40%-70%左右，无法完全杜绝感染。即使疫苗与流行毒株匹配，仍有一定概率感染。但是已经有大量科学研究结果证明，接种后即使仍然感染了流感，症状也通常较轻，病程更短，重症风险也是显著降低的。</p>
+                    </div>
+                </div>
+                
+                <!-- 温馨提示 -->
+                <div class="section-layout reverse warm-tip-layout">
+                    <div class="right-content">
+                        <h3 class="warm-tip-title">温馨提示</h3>
+                        <div class="warm-tip">
+                            <p>需要特别强调的是 现有的三价和四价流感疫苗 对今年流行的H3N2都是有效的！</p>
+                        </div>
+                    </div>
+                    <div class="left-image">
+                        <img src="./imgs/imgs/ym03.png" alt="温馨提示" class="section-image">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 抗病毒药物 -->
+            <section class="section" id="antiviral">
+                <h2>06 抗病毒药物</h2>
+                <div class="section-layout reverse">
+                    <div class="right-content">
+                        <h3>目前，我国主要用于治疗流感的药物包括奥司他韦、玛巴洛沙韦等</h3>
+                        <ul>
+                            <li>奥司他韦（Oseltamivir）</li>
+                            <li>扎那米韦（Zanamivir）</li>
+                            <li>帕拉米韦（Peramivir）</li>
+                            <li>玛巴洛沙韦（Mabalosavir）</li>
+                        </ul>
+                        
+                        <div class="data-source">数据来源：成都市双流区中医院</div>
+                    </div>
+                    <div class="left-content">
+                        <h3>抗病毒药物最佳治疗时机</h3>
+                        <p>早期使用抗病毒药物至关重要：</p>
+                        <ul>
+                            <li>发病48小时内使用，效果最佳</li>
+                            <li>高危人群即使超过48小时，仍建议使用</li>
+                            <li>可显著缩短病程，减轻症状严重程度</li>
+                            <li>降低并发症发生风险</li>
+                        </ul>
+                        <p>高危人群包括：65岁以上老年人、5岁以下儿童、孕妇、慢性病患者、免疫功能低下者等。</p>
+                    </div>
+                </div>
+                
+                <!-- 药物对比表格 -->
+                <div class="section-layout vertical">
+                    <div class="bottom-content" style="width: 100%; max-width: 100%;">
+                        <h3>奥司他韦与玛巴洛沙韦对比</h3>
+                        <table class="flu-comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>品名</th>
+                                    <th>奥司他韦</th>
+                                    <th>玛巴洛沙韦</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>适应症</td>
+                                    <td>成人及1岁及以上儿童甲、乙型流感的治疗；13岁及以上人群的甲型和乙型流感预防</td>
+                                    <td>成人和5岁及以上儿童单纯性甲型和乙型流感患者；或存在流感相关并发症高风险的成人和12岁及以上儿童流感患者</td>
+                                </tr>
+                                <tr>
+                                    <td>用法用量</td>
+                                    <td>治疗：每日两次，连吃5天；预防：每日一次，连用7-10天</td>
+                                    <td>仅需一次，按体重服药</td>
+                                </tr>
+                                <tr>
+                                    <td>不良反应</td>
+                                    <td>恶心、呕吐、头痛和疼痛</td>
+                                    <td>恶心呕吐较奥司他韦轻，偶见超敏反应、皮疹或荨麻疹，极少数出现精神系统症状</td>
+                                </tr>
+                                <tr>
+                                    <td>特殊人群</td>
+                                    <td>1岁及以上儿童可用；妊娠、哺乳期妇女可用；老年人无需调整剂量</td>
+                                    <td>5岁及以上儿童可用；妊娠、哺乳期妇女不建议使用；老年人无需调整剂量</td>
+                                </tr>
+                                <tr>
+                                    <td>起效速度</td>
+                                    <td>相对较慢</td>
+                                    <td>通常更快</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+
+            </section>
+
+            <!-- 6. 总结与结论 -->
+            <section class="section" id="conclusion">
+                <h2>07 建议措施</h2>
+                <div class="section-layout" style="align-items: flex-start;">
+                    <div class="left-image" style="height: 80%;">
+                        <img src="./imgs/imgs/jy01.jpg" alt="总结与建议" class="section-image" style="height: 260px; object-fit: contain;">
+                    </div>
+                    <div class="right-content">
+                        <ul class="conclusion-list">
+                            <li>加快研发针对新变异株的疫苗，并提高疫苗接种率，尤其是重点人群。</li>
+                            <li>加强病毒监测和预警系统建设，及时掌握病毒变异情况。</li>
+                            <li>提高公众的健康意识，加强个人防护措施，如佩戴口罩、勤洗手、保持社交距离等。</li>
+                            <li>优化医疗资源配置，提高医疗机构应对突发公共卫生事件的能力。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+
+    </div>
+    </div>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    // 配置Chart.js默认样式
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#333';
+    Chart.defaults.plugins.legend.position = 'bottom';
+    
+
+
+
+
+    // 3. 原因分析1：病毒变异图表
+    try {
+        const cause1ChartElement = document.getElementById('cause1Chart');
+        if (cause1ChartElement) {
+            const cause1Ctx = cause1ChartElement.getContext('2d');
+            new Chart(cause1Ctx, {
+        type: 'bar',
+        data: {
+            labels: ['2021', '2022', '2023', '2024', '2025'],
+            datasets: [{
+                label: '病毒变异株占比（%）',
+                data: [12, 18, 25, 32, 67],
+                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                borderColor: '#e74c3c',
+                borderWidth: 2,
+                borderRadius: 5,
+                maxBarThickness: 60
+            }, {
+                label: '疫苗免疫逃逸率（%）',
+                data: [8, 12, 18, 25, 35],
+                backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                borderColor: '#3498db',
+                borderWidth: 2,
+                borderRadius: 5,
+                maxBarThickness: 60
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '2021-2025年甲流病毒变异情况',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '百分比（%）'
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing cause1Chart:', error);
+    }
+
+    // 4. 原因分析2：气候变化图表
+    try {
+        const cause2ChartElement = document.getElementById('cause2Chart');
+        if (cause2ChartElement) {
+            const cause2Ctx = cause2ChartElement.getContext('2d');
+            new Chart(cause2Ctx, {
+        type: 'line',
+        data: {
+            labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+            datasets: [{
+                label: '冬季平均气温（℃）',
+                data: [-2.3, -1.8, -2.5, -1.2, -0.8, -0.5, 0.2],
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                yAxisID: 'y'
+            }, {
+                label: '冬季平均湿度（%）',
+                data: [52, 48, 55, 45, 42, 38, 35],
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '2019-2025年冬季气候变化趋势',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: '气温（℃）'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '湿度（%）'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing cause2Chart:', error);
+    }
+
+    // 5. 高危人群饼图
+    try {
+        const highRiskChartElement = document.getElementById('highRiskChart');
+        if (highRiskChartElement) {
+            const highRiskCtx = highRiskChartElement.getContext('2d');
+            new Chart(highRiskCtx, {
+        type: 'pie',
+        data: {
+            labels: ['≥65岁老年人', '5岁以下儿童', '慢性基础疾病患者', '肥胖者（BMI≥30）', '妊娠及围产期女性'],
+            datasets: [{
+                data: [42.3, 18.7, 23.5, 9.8, 5.7],
+                backgroundColor: [
+                    '#f08a5d',
+                    '#3498db',
+                    '#2ecc71',
+                    '#f39c12',
+                    '#9b59b6'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '高危人群占重型/危重型病例比例',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed}%`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing highRiskChart:', error);
+    }
+
+    // 6. 原因分析3：人群免疫力图表
+    try {
+        const cause3ChartElement = document.getElementById('cause3Chart');
+        if (cause3ChartElement) {
+            const cause3Ctx = cause3ChartElement.getContext('2d');
+            new Chart(cause3Ctx, {
+        type: 'bar',
+        data: {
+            labels: ['2020', '2021', '2022', '2023', '2024'],
+            datasets: [{
+                label: '疫苗接种率（%）',
+                data: [35, 32, 28, 22, 18.5],
+                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                borderColor: '#2ecc71',
+                borderWidth: 2,
+                borderRadius: 5,
+                maxBarThickness: 60
+            }, {
+                label: '自然感染率（%）',
+                data: [15, 12, 10, 8, 6],
+                backgroundColor: 'rgba(243, 156, 18, 0.7)',
+                borderColor: '#f39c12',
+                borderWidth: 2,
+                borderRadius: 5,
+                maxBarThickness: 60
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '2020-2024年人群甲流免疫情况',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '百分比（%）'
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing cause3Chart:', error);
+    }
+
+    // 6. 原因分析4：人口流动图表
+    try {
+        const cause4ChartElement = document.getElementById('cause4Chart');
+        if (cause4ChartElement) {
+            const cause4Ctx = cause4ChartElement.getContext('2d');
+            new Chart(cause4Ctx, {
+            type: 'line',
+            data: {
+                labels: ['2021', '2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: '春节期间人口流动量（亿人次）',
+                    data: [17.5, 10.5, 19.8, 25.3, 30.8],
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#9b59b6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '2021-2025年春节期间全国人口流动量',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: '人口流动量（亿人次）'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        }
+    } catch (error) {
+        console.error('Error initializing cause4Chart:', error);
+    }
+
+    // 7. 成都医院案例图表 - 接诊情况
+    try {
+        const caseChartElement = document.getElementById('caseChart');
+        if (caseChartElement) {
+            const caseCtx = caseChartElement.getContext('2d');
+            new Chart(caseCtx, {
+        type: 'line',
+        data: {
+            labels: ['1月', '2月上旬', '2月中旬', '2月下旬', '3月'],
+            datasets: [{
+                label: '日接诊量（人次）',
+                data: [200, 500, 900, 1200, 800],
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3498db',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }, {
+                label: '平均等待时间（小时）',
+                data: [1, 2.5, 4, 3, 1.5],
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#e74c3c',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '成都某三甲医院甲流高发期就诊情况',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: '日接诊量（人次）'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '平均等待时间（小时）'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing caseChart:', error);
+    }
+    
+    // 8. 成都医院案例图表 - 年龄分布
+    try {
+        const ageDistributionChartElement = document.getElementById('ageDistributionChart');
+        if (ageDistributionChartElement) {
+            const ageDistributionCtx = ageDistributionChartElement.getContext('2d');
+            new Chart(ageDistributionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['0-3岁婴幼儿', '3-6岁幼儿', '6岁以上儿童'],
+            datasets: [{
+                data: [71, 22, 7],
+                backgroundColor: [
+                    '#f08a5d',
+                    '#3498db',
+                    '#2ecc71'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '甲流确诊病例年龄分布',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map(function(label, i) {
+                                    const meta = chart.getDatasetMeta(0);
+                                    const ds = data.datasets[0];
+                                    return {
+                                        text: `${label}: ${ds.data[i]}%`,
+                                        fillStyle: ds.backgroundColor[i],
+                                        strokeStyle: ds.borderColor[i],
+                                        lineWidth: ds.borderWidth,
+                                        hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed}%`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing ageDistributionChart:', error);
+    }
+    
+    // 9. 成都医院案例图表 - 症状表现
+    try {
+        const symptomChartElement = document.getElementById('symptomChart');
+        if (symptomChartElement) {
+            const symptomCtx = symptomChartElement.getContext('2d');
+            new Chart(symptomCtx, {
+        type: 'bar',
+        data: {
+            labels: ['高热、咳嗽、咽痛', '呕吐、腹泻', '肺炎、中耳炎等并发症'],
+            datasets: [{
+                label: '患儿比例（%）',
+                data: [92, 12, 3],
+                backgroundColor: [
+                    'rgba(240, 138, 93, 0.7)',
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(46, 204, 113, 0.7)'
+                ],
+                borderColor: [
+                    '#f08a5d',
+                    '#3498db',
+                    '#2ecc71'
+                ],
+                borderWidth: 2,
+                borderRadius: 5,
+                maxBarThickness: 60
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '甲流患儿症状表现分布',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: '比例（%）'
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+        }
+    } catch (error) {
+        console.error('Error initializing symptomChart:', error);
+    }
+    
+    // 10. 儿科门诊接诊数据图表 - ECharts
+    try {
+        const pediatricChartElement = document.getElementById('pediatricChart');
+        if (pediatricChartElement) {
+            const pediatricChart = echarts.init(pediatricChartElement);
+            
+            // 准备数据
+            const pediatricData = {
+                currentYear: 2025,
+                fluLikeCases: 18720,
+                confirmedCases: 12450,
+                growthRate: 42,
+                confirmedRatio: 66.5
+            };
+            
+            // 配置项
+            const pediatricOption = {
+                title: {
+                    text: '儿科门诊甲流接诊数据',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['流感样病例数', '确诊甲流病例数'],
+                    top: 30
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: [
+                        `${pediatricData.currentYear-1}年`,
+                        `${pediatricData.currentYear}年`
+                    ]
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '病例数（例）'
+                },
+                series: [
+                    {
+                        name: '流感样病例数',
+                        type: 'bar',
+                        data: [
+                            Math.round(pediatricData.fluLikeCases / (1 + pediatricData.growthRate / 100)),
+                            pediatricData.fluLikeCases
+                        ],
+                        itemStyle: {
+                            color: '#3498db'
+                        }
+                    },
+                    {
+                        name: '确诊甲流病例数',
+                        type: 'bar',
+                        data: [
+                            0, // 假设去年数据未知，用0占位
+                            pediatricData.confirmedCases
+                        ],
+                        itemStyle: {
+                            color: '#f08a5d'
+                        }
+                    },
+                    {
+                        name: '确诊比例',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [
+                            0,
+                            pediatricData.confirmedRatio
+                        ],
+                        itemStyle: {
+                            color: '#2ecc71'
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{c}%'
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '病例数（例）',
+                        axisLabel: {
+                            formatter: '{value}'
+                        }
+                    },
+                    {
+                        type: 'value',
+                name: '确诊比例（%）',
+                max: 100,
+                axisLabel: {
+                    formatter: '{value}%'
+                }
+            }
+        ],
+        animation: {
+            duration: 1500,
+            easing: 'easeOutQuart'
+        }
+    };
+    
+    // 使用配置项渲染图表
+                pediatricChart.setOption(pediatricOption);
+                
+                // 响应式调整
+                window.addEventListener('resize', function() {
+                    pediatricChart.resize();
+                });
+            }
+        } catch (error) {
+            console.error('Error initializing pediatricChart:', error);
+        }
+
+    // 原因分析模块交互功能
+
+    
+    // 添加滚动动画效果
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // 观察所有章节
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(30px)';
+        section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        observer.observe(section);
+    });
+    
+    // 检查图表区域是否在视口中，如果是则立即显示
+    const chartSections = document.querySelectorAll('#case-study .chart-section');
+    const checkChartVisibility = () => {
+        chartSections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom >= 0) {
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }
+        });
+    };
+    
+    // 页面加载完成后检查一次
+    setTimeout(checkChartVisibility, 100);
+    
+    // 初始化中国地图
+    try {
+        initChinaMap();
+    } catch (error) {
+        console.error('Error initializing China map:', error);
+    }
+});
+
+// 平滑滚动效果
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+
+// 初始化中国地图
+function initChinaMap() {
+    try {
+        // 获取地图容器
+        const mapContainer = document.getElementById('chinaMap');
+        if (!mapContainer) return;
+        
+        // 初始化ECharts实例
+        const myChart = echarts.init(mapContainer);
+        
+        // 25个中国主要城市的经纬度，增加了西北区城市，确保标记点都在中国地图上
+        const cityLocations = [
+            { name: '北京', lng: 116.4074, lat: 39.9042, value: 1200 },
+            { name: '上海', lng: 121.4737, lat: 31.2304, value: 1500 },
+            { name: '广州', lng: 113.2644, lat: 23.1291, value: 900 },
+            { name: '深圳', lng: 114.0579, lat: 22.5431, value: 800 },
+            { name: '成都', lng: 104.0668, lat: 30.5728, value: 700 },
+            { name: '杭州', lng: 120.1551, lat: 30.2741, value: 950 },
+            { name: '南京', lng: 118.7969, lat: 32.0603, value: 650 },
+            { name: '武汉', lng: 114.3055, lat: 30.5928, value: 500 },
+            { name: '西安', lng: 108.9398, lat: 34.3416, value: 450 },
+            { name: '重庆', lng: 106.5516, lat: 29.5630, value: 600 },
+            { name: '天津', lng: 117.2008, lat: 39.0842, value: 550 },
+            { name: '苏州', lng: 120.5954, lat: 31.2989, value: 750 },
+            { name: '郑州', lng: 113.6254, lat: 34.7466, value: 580 },
+            { name: '长沙', lng: 112.9388, lat: 28.2282, value: 480 },
+            { name: '沈阳', lng: 123.4328, lat: 41.8045, value: 420 },
+            { name: '青岛', lng: 120.3826, lat: 36.0671, value: 620 },
+            { name: '大连', lng: 121.6147, lat: 38.9140, value: 380 },
+            { name: '厦门', lng: 118.0894, lat: 24.4798, value: 520 },
+            { name: '昆明', lng: 102.8329, lat: 24.8801, value: 400 },
+            { name: '济南', lng: 117.0009, lat: 36.6758, value: 560 },
+            // 增加西北区城市
+            { name: '兰州', lng: 103.8343, lat: 36.0611, value: 320 },
+            { name: '西宁', lng: 101.7782, lat: 36.6172, value: 280 },
+            { name: '银川', lng: 106.2586, lat: 38.4680, value: 350 },
+            { name: '乌鲁木齐', lng: 87.6177, lat: 43.8256, value: 260 },
+            { name: '拉萨', lng: 91.1175, lat: 29.6500, value: 180 }
+        ];
+        
+        // 转换为ECharts scatter需要的[经度, 纬度, 值]格式
+        const cityData = cityLocations.map(city => ({
+            name: city.name,
+            value: [city.lng, city.lat, city.value]
+        }));
+        
+        // 从本地加载中国地图GeoJSON数据
+        fetch('./data/data/100000_full.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(geoJson => {
+                // 注册地图
+                echarts.registerMap('china', geoJson);
+                
+                // 设置地图配置项
+                const option = {
+                    title: {
+                        left: '20',
+                        top: '20',
+                        textStyle: {
+                            color: '#333',
+                            fontSize: '20',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c} 例'
+                    },
+                    
+                    series: [
+                        {
+                            name: '甲流病例分布',
+                            type: 'map',
+                            map: 'china',
+                            roam: false,
+                            emphasis: {
+                                label: {
+                                    show: true
+                                }
+                            },
+                            data: []
+                        },
+                        {
+                            name: '城市病例',
+                            type: 'scatter',
+                            coordinateSystem: 'geo',
+                            data: cityData,
+                            symbol: 'circle', // 明确指定为实心圆点
+                            symbolSize: function(val) {
+                                return Math.sqrt(val[2]) / 5 + 5; // 使用val[2]获取病例数
+                            },
+                            label: {
+                                show: false // 隐藏标签，只显示实心圆点
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    formatter: '{b}: {c} 例',
+                                    fontSize: 12
+                                }
+                            },
+                            itemStyle: {
+                                color: '#f08a5d',
+                                borderWidth: 0 // 确保没有边框，显示为纯实心
+                            }
+                        }
+                    ],
+                    geo: {
+                        map: 'china',
+                        roam: false,
+                        backgroundColor: 'transparent', // 设置地图背景为透明
+                        emphasis: {
+                            itemStyle: {
+                                areaColor: '#f0f0f0'
+                            }
+                        },
+                        itemStyle: {
+                            areaColor: 'transparent' // 设置地图区域背景为透明
+                        },
+                        zoom: 1.2, // 设置缩放级别为3
+                        center: [105, 33], // 调整中心点更靠下，确保北部地区完整显示
+                        top: 80, // 调整地图位置，避免被标题或容器顶部遮挡
+                        bottom: 20 // 确保地图底部有足够空间
+                    }
+                };
+                
+                // 使用配置项渲染地图
+                myChart.setOption(option);
+                
+                // 响应式调整
+                window.addEventListener('resize', function() {
+                    myChart.resize();
+                });
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+                // 失败时显示替代内容，但不影响页面其他部分
+                mapContainer.innerHTML = '<div style="text-align: center; padding: 100px; color: #999;">地图加载失败，请在服务器环境下查看完整地图</div>';
+            });
+    } catch (error) {
+        console.error('地图初始化错误:', error);
+        // 确保即使初始化过程中出现错误，也不会影响页面其他部分
+        }
+}
+    </script>
+</body>
+</html>
