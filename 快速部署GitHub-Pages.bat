@@ -33,7 +33,7 @@ if %errorlevel% neq 0 (
     echo.
     echo ⚠️  首次部署需要配置远程仓库
     echo.
-    set /p repo_url="请输入你的 GitHub 仓库地址（如：https://github.com/用户名/仓库名.git）: "
+    set /p repo_url="https://github.com/Yangyinan/flu-page.git "
     git remote add origin %repo_url%
     git branch -M main
     echo.
